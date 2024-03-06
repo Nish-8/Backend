@@ -57,13 +57,16 @@ usersSchema.pre("save", async function (next) {
   next();
 });
 
-usersSchema.methods.isPasswordCorrect = async function (password) {//here methods is a  object which allow us to add custom methods 
-//just like hashing password bcrypt can be used to compare if password is correct or noy before savong it
-  return await bcrypt.compare(password,this.password)
-}
+usersSchema.methods.isPasswordCorrect = async function (password) {
+  //here methods is a  object which allow us to add custom methods
+  //just like hashing password bcrypt can be used to compare if password is correct or noy before savong it
+  return await bcrypt.compare(password, this.password);
+};
 
 userSchema.methods.generateAccessToken = function () {
+  //this are jwt token but vary as per usage
   return jwt.sign(
+    //jwt has a sign() method which generate token taking different paload like id, username, email etc.
     {
       _id: this._id,
       email: this.email,
@@ -77,7 +80,9 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 userSchema.methods.generateRefreshToken = function () {
+  //this is also jwt token but vary as oer usage
   return jwt.sign(
+    //since its a refresh token hence it does not require all info
     {
       _id: this._id,
     },
@@ -87,6 +92,5 @@ userSchema.methods.generateRefreshToken = function () {
     }
   );
 };
-
 
 export const Users = mongoose.model("Users", usersSchema);
