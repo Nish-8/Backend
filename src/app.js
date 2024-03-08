@@ -19,4 +19,11 @@ app.use(express.static("public")); // to store files and media into public folde
 // to securely set and read cookie
 app.use(cookieParser());
 
+//routes
+
+import userRouter from "./routes/users.routes.js";
+
+//routes declaration
+app.use("/users", userRouter);
+
 export { app };

@@ -63,7 +63,7 @@ usersSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.generateAccessToken = function () {
+usersSchema.methods.generateAccessToken = function () {
   //this are jwt token but vary as per usage
   return jwt.sign(
     //jwt has a sign() method which generate token taking different paload like id, username, email etc.
@@ -79,7 +79,7 @@ userSchema.methods.generateAccessToken = function () {
     }
   );
 };
-userSchema.methods.generateRefreshToken = function () {
+usersSchema.methods.generateRefreshToken = function () {
   //this is also jwt token but vary as oer usage
   return jwt.sign(
     //since its a refresh token hence it does not require all info
