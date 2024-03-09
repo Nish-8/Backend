@@ -18,6 +18,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   //1.get details from user
   const { fullName, email, username, password } = req.body;
+  // console.log("body", req.body);
 
   //2.check if fields are empty. yes-error
   if (
@@ -38,11 +39,21 @@ const registerUser = asyncHandler(async (req, res) => {
   //4.Check for images and avatars
 
   const avatarLocalPath = req.files?.avatar[0].path; //since we have inserted a middleware in user routes hence apart from bodey multer additionally provide .files methid to handle file
-  const coverImageLocalPath = req.files?.coverImage[0].path;
+  let coverImageLocalPath = "";
+
+  if (req.files && req.files.coverImage && req.files.coverImage[0]) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
+
+  // if (Array.isArray(req.files?.coverImage) && req.files.coverImage.length > 0) {
+  //   coverImageLocalPath = req.files.coverImage[0].path;
+  // } or it can be like this
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
+
+  // console.log("files", req.files);
 
   //5.uplaod files on cloudinary
 
