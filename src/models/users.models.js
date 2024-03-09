@@ -53,7 +53,7 @@ usersSchema.pre("save", async function (next) {
     // encrypt password only if it is updated else just pass the next flag
     return next();
   }
-  this.password = bcrypt.hash(this.password, 10); //to hash password using pre middleware of mongoose
+  this.password = await bcrypt.hash(this.password, 10); //to hash password using pre middleware of mongoose
   next();
 });
 
