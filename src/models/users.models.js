@@ -66,7 +66,7 @@ usersSchema.methods.isPasswordCorrect = async function (password) {
 usersSchema.methods.generateAccessToken = function () {
   //this are jwt token but vary as per usage
   return jwt.sign(
-    //jwt has a sign() method which generate token taking different paload like id, username, email etc.
+    //jwt has a sign() method which generate token taking different payload like id, username, email etc.
     {
       _id: this._id,
       email: this.email,
