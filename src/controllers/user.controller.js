@@ -1,11 +1,11 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/apiError.js";
+import { ApiError } from "../utils/ApiError.js";
 
 import { Users } from "../models/users.models.js";
 import { cloudinaryFileUpload } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
-const generateAceessAndRefreshToken = async (userId) => {
+const generateAccessAndRefreshToken = async (userId) => {
   try {
     //find that user to genarate token
     const user = await Users.findOne(userId);
@@ -23,7 +23,7 @@ const generateAceessAndRefreshToken = async (userId) => {
     //after all thing is completed we can successfully return that tokens
     return { accessToken, refreshToken };
   } catch (error) {
-    throw new ApiError(500, "Something went wrong while gebarating Token");
+    throw new ApiError(500, "Something went wrong while generating Token");
   }
 };
 
@@ -69,7 +69,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
   // if (Array.isArray(req.files?.coverImage) && req.files.coverImage.length > 0) {
   //   coverImageLocalPath = req.files.coverImage[0].path;
-  // } or it can be like this
+  // }
+  //or it can be like this
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
@@ -131,8 +132,9 @@ todo
   //1
 
   const { username, email, password } = req.body;
+  console.log("data", email, username, password);
 
-  if (!username || !email) {
+  if (!(username || email)) {
     throw new ApiError(400, "Username or password is required");
   }
 
@@ -155,7 +157,7 @@ todo
 
   //5. Access and refresh token
 
-  const { accessToken, refreshToken } = await generateAceessAndRefreshToken(
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user._id
   );
 
@@ -179,9 +181,9 @@ todo
       new ApiResponse(
         200,
         {
+          loggedInUser,
           accessToken,
           refreshToken,
-          loggedInUser,
         },
         "User LoggedIn successfully"
       )
@@ -193,7 +195,7 @@ const logOutUser = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        refreshToken: undefined,
+        refreshToken: 1,
       },
     },
     {
@@ -209,7 +211,7 @@ const logOutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(ApiResponse(200, {}, "User Logged Out"));
+    .json(new ApiResponse(200, {}, "User Logged Out"));
 });
 
 export { registerUser, loginUser, logOutUser };
