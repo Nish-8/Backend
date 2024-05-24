@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { Users } from "../models/users.models.js";
 import { cloudinaryFileUpload } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -191,6 +192,8 @@ todo
 });
 
 const logOutUser = asyncHandler(async (req, res) => {
+  const user = await Users.findById(req.user?._id);
+
   Users.findByIdAndUpdate(
     req.user._id,
     {
@@ -279,6 +282,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   }
 
   const user = await Users.findById(req.user?._id);
+  console.log("user", user);
 
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
@@ -293,9 +297,11 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
+  console.log("User", req.user);
+  const user = req.user;
   return res
     .status(200)
-    .json(201, req.user, "Current User fetched successfully");
+    .json(new ApiResponse(201, user, "Current User fetched successfully"));
 });
 
 const updateAccoutDetails = asyncHandler(async (req, res) => {
@@ -316,12 +322,14 @@ const updateAccoutDetails = asyncHandler(async (req, res) => {
     }
   ).select("-password");
 
-  return res.status(200).json(201, user, "fields updated successfully");
+  return res
+    .status(200)
+    .json(new ApiResponse(201, user, "fields updated successfully"));
 });
 
 const updateAvatarImage = asyncHandler(async (req, res) => {
-  //since updating single file then uisng multer middleware we are accessing that file. note: try using coverImage and avatarImage alongwith  req.file
-  const avatarLocalPath = req.file?.avatar[0].path;
+  //since updating single file then using multer middleware we are accessing that file. note: try using coverImage and avatarImage alongwith  req.file
+  const avatarLocalPath = req.file?.path;
 
   if (!avatarLocalPath) {
     throw new ApiError(401, "Avatar file is missing");
@@ -335,7 +343,9 @@ const updateAvatarImage = asyncHandler(async (req, res) => {
   const user = await Users.findByIdAndUpdate(
     req.user?._id,
     {
-      $set: avatar.url,
+      $set: {
+        avatar: avatar.url,
+      },
     },
     { new: true }
   ).select("-password");
@@ -346,13 +356,14 @@ const updateAvatarImage = asyncHandler(async (req, res) => {
 });
 
 const updateCoverImage = asyncHandler(async (req, res) => {
-  const coverImageLocalPath = req.file.coverImage[0].path;
+  const coverImageLocalPath = req.file?.path;
 
-  if (!coverImage) {
+  if (!coverImageLocalPath) {
     throw new ApiError(401, "cover Image not found");
   }
 
-  const coverImage = cloudinaryFileUpload(coverImageLocalPath);
+  const coverImage = await cloudinaryFileUpload(coverImageLocalPath);
+  console.log("Cover aya", coverImage);
 
   if (!coverImage.url) {
     throw new ApiError(401, "Error while uploading Cover Image file to cloud");
@@ -361,7 +372,9 @@ const updateCoverImage = asyncHandler(async (req, res) => {
   const user = await Users.findByIdAndUpdate(
     req.user?._id,
     {
-      $set: coverImage.url,
+      $set: {
+        coverImage: coverImage.url,
+      },
     },
     { new: true }
   ).select("-password");
@@ -373,6 +386,9 @@ const updateCoverImage = asyncHandler(async (req, res) => {
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = await req.params;
+
+  console.log("Username", username);
+
   if (!username.trim()) {
     throw new ApiError(401, "Username does not found");
   }
@@ -388,7 +404,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         from: "subscriptions",
         localField: "_id",
         foreignField: "channel",
-        as: "Subscribers",
+        as: "subscribers",
       },
     },
     {
@@ -404,8 +420,8 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         subscribersCount: {
           $size: "$subscribers",
         },
-        channelSubscribedTo: {
-          $size: "$channel",
+        channelsSubscribedToCount: {
+          $size: "$subscribedTo",
         },
         isSubscribed: {
           $cond: {
@@ -422,19 +438,75 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         avatar: 1,
         coverImage: 1,
         subscribersCount: 1,
+        channelsSubscribedToCount: 1,
         isSubscribed: 1,
         username: 1,
         email: 1,
       },
     },
   ]);
-  console.log("Channel", channel);
+
   if (!channel?.length) {
     throw new ApiError(401, "Channel does not exist");
   }
+  console.log("Channel", channel);
   return res
     .status(200)
     .json(new ApiResponse(200, channel[0], "Channel fetched successfully"));
+});
+
+const getUserWatchHistory = asyncHandler(async (req, res) => {
+  const user = await Users.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+  console.log("User", user);
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user[0].watchHistory,
+        "Watch history fetched succesfully"
+      )
+    );
 });
 
 export {
@@ -448,4 +520,5 @@ export {
   updateAvatarImage,
   updateCoverImage,
   getUserChannelProfile,
+  getUserWatchHistory,
 };

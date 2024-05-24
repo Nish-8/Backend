@@ -8,10 +8,8 @@ const subscriptionSchema = new mongoose.Schema(
     },
 
     channel: {
-      type: {
-        type: Schema.Types.ObjectId,
-        ref: "Users",
-      },
+      type: Schema.Types.ObjectId,
+      ref: "Users",
     },
   },
   { timestamps: true }
