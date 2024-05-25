@@ -42,9 +42,9 @@ app.use("/api/v1/playlist", playlistRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/healthcheck", healthcheckRouter);
 
-app.use((err, req, res, next) => {
-  // its a global catch for html error
-  return res.json("Something went wrong, please try again");
-});
+// app.use((err, req, res, next) => {
+//   // its a global catch for html error
+//   return res.json(500, "Something went wrong, please try again");
+// });
 
 export { app };
