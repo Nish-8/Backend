@@ -2,13 +2,13 @@
 
 ## Overview
 
-This project integrates core functionalities of YouTube with the tweet capabilities of Twitter, providing a comprehensive backend solution. Detailed documentation is available via the links below.
+This project comprehensive backend project that combines the functionalities of YouTube and Twitter, integrating them seamlessly providing a comprehensive backend solution. Detailed documentation is available via the links below.
 
 ## Key Links
 
 | Content            | Link                                                                        |
 | ------------------ | ----------------------------------------------------------------------------|
-| API Documentation  | [API Documentation](https://documenter.getpostman.com/view/28570926/2s9YsNdVwW)    |
+| API Documentation  | [API Documentation](https://documenter.getpostman.com/view/24856556/2sA3QtfBnV)    |
 | Data Model         | [Model Documentation](https://app.eraser.io/workspace/YtPqZ1VogxGy1jzIDkzj)         |
 
 ## Features
@@ -73,18 +73,18 @@ This project integrates core functionalities of YouTube with the tweet capabilit
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/Hruthik-28/youtube-twitter.git
+    https://github.com/Nish-8/VdoTube-Backend.git
     ```
 
 2. **Install dependencies:**
 
     ```bash
-    cd youtube-twitter
+    cd vdotube-backend
     npm install
     ```
 
 3. **Configure environment variables:**
-    Create a `.env` file in the project's root directory and populate it with the necessary values as outlined in the `.env.sample` file.
+    Create a `.env` file in the project's root directory and populate it with the necessary values as outlined in the `.env.example` file.
 
 4. **Launch the server:**
 
@@ -96,6 +96,4 @@ This project integrates core functionalities of YouTube with the tweet capabilit
 
 Contributions to this project are welcome. Please feel free to submit pull requests or issues.
 
-## License
 
-This project is licensed under [ChaiAurCode](https://www.youtube.com/@chaiaurcode).
